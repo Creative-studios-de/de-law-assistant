@@ -1,34 +1,37 @@
-export default async function handler(req, res) {
-  // Add CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://creative-studios-de.github.io/de-law-assistant/");
-  res.setHeader("Access-Control-Allow-Methods", "POST");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+const { Configuration, OpenAIApi } = require("openai");
 
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const openai = new OpenAIApi(configuration);
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const question = req.body.question;
+  const { question } = req.body;
+
+  if (!question) {
+    return res.status(400).json({ error: "No question provided" });
+  }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "text-davinci-003",
-        prompt: question,
-        max_tokens: 100,
-      }),
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: question,
+      max_tokens: 100,
     });
 
-    const data = await response.json();
-    res.status(200).json({ answer: data.choices[0].text.trim() });
+    // Check if choices exist and contain at least one element
+    if (response.data.choices && response.data.choices.length > 0) {
+      res.status(200).json({ answer: response.data.choices[0].text });
+    } else {
+      res.status(500).json({ error: "No answer found in response" });
+    }
   } catch (error) {
-    console.error("Error fetching answer:", error);
-    res.status(500).json({ error: "Error fetching answer" });
+    console.error("Error with OpenAI API:", error);
+    res.status(500).json({ error: "Failed to fetch answer from OpenAI API" });
   }
-}
+};
