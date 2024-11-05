@@ -20,8 +20,8 @@ function submitQuestion() {
   chatContainer.appendChild(loadingMessage);
   chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
 
-  // Send the question to the backend API
-  fetch('/api/queryClaude', { // Updated the endpoint to match your serverless function
+  // Send the question to the Vercel API endpoint
+  fetch('https://de-law-assistant.vercel.app/', { // Replace with your Vercel URL
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
