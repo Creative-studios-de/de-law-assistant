@@ -21,13 +21,11 @@ function submitQuestion() {
   chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
 
   // Send the question to the Vercel API endpoint
-  fetch('de-law-assistant-nr7t4z5aw-rkhromaev-gmailcoms-projects.vercel.app', { // Replace with your Vercel URL
+  fetch('https://de-law-assistant.vercel.app/api/get-answer', { // Replace with your Vercel URL
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ question: userQuestion }),
-  })
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ question: userQuestion })
+})
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
