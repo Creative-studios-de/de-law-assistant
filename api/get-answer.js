@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Add CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://creative-studios-de.github.io");
+  res.setHeader("Access-Control-Allow-Origin", "https://creative-studios-de.github.io/de-law-assistant/");
   res.setHeader("Access-Control-Allow-Methods", "POST");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
