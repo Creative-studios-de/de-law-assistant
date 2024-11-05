@@ -21,7 +21,7 @@ function submitQuestion() {
   chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
 
   // Send the question to the Vercel API endpoint
-  fetch('https://de-law-assistant.vercel.app/api/get-answer', { // Replace with your Vercel URL
+  fetch('de-law-assistant-nr7t4z5aw-rkhromaev-gmailcoms-projects.vercel.app', { // Replace with your Vercel URL
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
