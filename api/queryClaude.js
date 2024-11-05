@@ -1,72 +1,41 @@
-import { createClient } from '@anthropic-ai/sdk'; // Updated import statement
+import { createClient } from '@anthropic-ai/sdk'; // Ensure you have the Anthropic client library installed
 
-const client = createClient(process.env.ANTHROPIC_API_KEY);
+const client = createClient({ apiKey: process.env.ANTHROPIC_API_KEY }); // Use your environment variable
 
 export async function POST(req) {
     try {
         // Extract the question from the request body
         const { question } = await req.json();
-        console.log('Received question:', question);
+        console.log('Received question:', question); // Log the question for debugging
 
-        // Validate the question
-        if (!question?.trim()) {
-            return new Response(
-                JSON.stringify({ 
-                    error: 'Question is required' 
-                }), {
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
+        // Check if the question is defined
+        if (!question || typeof question !== 'string') {
+            console.error('Invalid question:', question); // Log invalid questions
+            return new Response(JSON.stringify({ error: 'Invalid question format' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
-        // Call the Anthropic API
-        const response = await client.messages.create({
-            model: 'claude-3-opus-20240229', // Use specific model version
-            max_tokens: 1024, // Set maximum tokens
-            messages: [{ 
-                role: 'user', 
-                content: question 
-            }],
-            temperature: 0.7, // Add temperature for response variability
+        // Call the Anthropic API with the question
+        const response = await client.chat({
+            model: 'claude', // Specify the model you are using
+            messages: [{ role: 'user', content: question }], // Structure the message correctly
         });
 
-        // Return the response
-        return new Response(
-            JSON.stringify({ 
-                answer: response.content[0].text 
-            }), {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store'
-                },
-            }
-        );
+        // Log the response for debugging
+        console.log('Response from Anthropic:', response);
 
+        // Return the response in the expected format
+        return new Response(JSON.stringify({ answer: response.choices[0].message.content }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
     } catch (error) {
-        console.error('Error:', error);
-        
-        // Handle specific error types
-        if (error.status === 401) {
-            return new Response(
-                JSON.stringify({ 
-                    error: 'Authentication failed' 
-                }), {
-                    status: 401,
-                    headers: { 'Content-Type': 'application/json' },
-                }
-            );
-        }
-
-        return new Response(
-            JSON.stringify({ 
-                error: 'Internal Server Error',
-                message: error.message 
-            }), {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
+        console.error('Error in API function:', error); // Log any errors for debugging
+        return new Response(JSON.stringify({ error: 'Internal Server Error', details: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 }
